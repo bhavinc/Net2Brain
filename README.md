@@ -1,6 +1,6 @@
 
 
-# Algonaits Net2Brain CCN23 Hackathon 🧠
+# Algonauts + Net2Brain CCN23 Hackathon 🧠
 
 Welcome to __Net2Brain__, a powerful toolbox designed to facilitate the comparison of human brain activity patterns with the activations of Deep Neural Networks (DNNs). With over 600 pre-trained DNNs available, Net2Brain empowers neuroscientists to explore and analyze the relationships between artificial and biological neural representations.
 
