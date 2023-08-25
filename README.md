@@ -1,10 +1,29 @@
 
 
-# Net2Brain 🧠
+# Algonaits Net2Brain CCN23 Hackathon 🧠
 
 Welcome to __Net2Brain__, a powerful toolbox designed to facilitate the comparison of human brain activity patterns with the activations of Deep Neural Networks (DNNs). With over 600 pre-trained DNNs available, Net2Brain empowers neuroscientists to explore and analyze the relationships between artificial and biological neural representations.
 
 Net2Brain is a collaborative effort between CVAI and Radek Cichy's lab, aimed at providing a user-friendly toolbox for neural research with deep neural networks.
+
+## Hackathon Instructions
+This workshop uses the Net2Brain Toolbox and a subset of the Algonauts challenge data to easily build predictive models of brain activity. To expedite the menial parts of the workshop we ask participants to pre-prepare their python environment. Participants working on their local machines will need to install the CCN23 branch of Net2Brain and download the data from the workshop google drive. If using a google Colab, please copy the iPython notebook from the workshop google drive and run the first command 10 minutes before the beginning of the workshop. This will install all relevant dependencies. Additionally, create a soft link to the data folder 'subj01' in your running directory (copying the data to your personal drive is unnecessary).
+
+The following are the relevant links and commands:
+
+- To install Net2Brain Locally:
+   - pip install -U git+https://github.com/cvai-roig-lab/Net2Brain@CCN23
+
+- Alternatively clone the repository and install the dependencies: 
+   - git clone -b CCN23 https://github.com/cvai-roig-lab/Net2Brain.git
+   - cd Net2Brain
+   - pip install . 
+
+- The workshop google drive: https://t.ly/jkIu-
+
+- To create a soft link to the data in google drive (no need to copy data to your own drive): Shift+z
+
+For any issues check the FAQ and Forum: https://groups.google.com/g/ccn23-algonauts-workshop/
 
 ## All-in-One Solution
 Net2Brain offers an all-in-one solution by providing access to over 600 pretrained neural networks, specifically trained for various visual tasks. This extensive collection allows researchers to extract features from a diverse range of models, including pretrained and random architectures. Moreover, Net2Brain offers flexibility by allowing users to integrate their own models, thereby expanding the scope of experiments that can be conducted to evaluate brain responses.
