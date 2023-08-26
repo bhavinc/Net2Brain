@@ -89,7 +89,7 @@ class Plotting:
         uncl = [plotting_df[plotting_df['ROI']==ROI]['UNC'].iloc[0] for ROI in ROI_lst]
         label = 'Noise Ceiling'
         for ii,(unc,lnc) in enumerate(zip(uncl,lncl)):
-            if unc == lnc:
+            if unc == lnc or np.isnan(lnc).any():
                 continue
 
             plt.hlines(y=unc,xmin=ii-0.5*bar_width*num_models,xmax=ii+0.5*bar_width*num_models,
