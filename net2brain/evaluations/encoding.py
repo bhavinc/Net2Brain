@@ -61,6 +61,8 @@ def encode_layer(layer_id, n_components, batch_size, trn_Idx, tst_Idx, feat_path
 def train_regression_per_ROI(trn_x,tst_x,trn_y,tst_y):
     reg = LinearRegression().fit(trn_x, trn_y)
     y_prd = reg.predict(tst_x)
+    if tst_y == []:
+        return y_prd
     correlation_lst = np.zeros(y_prd.shape[1])
     for v in tqdm(range(y_prd.shape[1])):
         correlation_lst[v] = pearsonr(y_prd[:,v], tst_y[:,v])[0]
@@ -117,3 +119,57 @@ def linear_encoding(feat_path, roi_path, model_name, trn_tst_split=0.8, n_folds=
     if return_correlations:
         return all_rois_df,corr_dict
     return all_rois_df
+
+
+def test_encode_layer(layer_id, n_components, batch_size, trn_feat_path, tst_feat_path):
+    activations = []
+    feat_files = glob.glob(trn_feat_path+'/*.npz')
+    feat_files.sort()
+    tst_feat_files = glob.glob(tst_feat_path+'/*.npz')
+    tst_feat_files.sort()
+    pca = IncrementalPCA(n_components=n_components, batch_size=batch_size)
+    # Train pca encoding
+    for jj,ii in enumerate(tqdm(len(feat_files))):  # for each datafile for the current layer
+        feat = np.load(feat_files[ii], allow_pickle=True)  # get activations of the current layer
+        activations.append(feat[layer_id].flatten())  # collect in a list
+        if ((jj+1) % batch_size) == 0:
+            pca.partial_fit(np.stack(activations[-batch_size:],axis=0))
+    # Get the trn pca encoding
+    pca_trn = pca.transform(np.stack(activations,axis=0))
+    # Get the tst pca encoding
+    activations = []
+    for ii in tqdm(len(tst_feat_files)):  # for each datafile for the current layer
+        feat = np.load(tst_feat_files[ii], allow_pickle=True)  # get activations of the current layer
+        activations.append(feat[layer_id].flatten())  # collect in a list
+    pca_tst = pca.transform(np.stack(activations,axis=0))
+    return pca_trn,pca_tst
+
+def test_linear_encoding(trn_feat_path, tst_feat_path, roi_path, n_components=100, batch_size=100, random_state=14):
+    fold_dict = {}
+    corr_dict = {}
+    model_name = os.path.basename(trn_feat_path)
+    trn_feat_files = glob.glob(trn_feat_path+'/*.npz')
+    tst_feat_files = glob.glob(tst_feat_path+'/*.npz')
+    num_layers, layer_list, num_condns = get_layers_ncondns(feat_path)
+    for fold_ii in range(1):
+        np.random.seed(fold_ii+random_state)
+        random.seed(fold_ii+random_state)
+        #trn_Idx,tst_Idx = train_test_split(range(len(feat_files)),test_size=(1-trn_tst_split),train_size=trn_tst_split,random_state=fold_ii+random_state)
+        #print(np.sum(tst_Idx))
+        for layer_id in layer_list:
+            if layer_id not in fold_dict.keys():
+                fold_dict[layer_id] = {}
+                corr_dict[layer_id] = {}
+            pca_trn,pca_tst = encode_layer(layer_id, n_components, batch_size, trn_feat_path, tst_feat_path)
+            roi_files = glob.glob(roi_path+'/*.npy')
+            for roi_file in roi_files:
+                roi_name = os.path.basename(roi_file)[:-4]
+                if roi_name not in fold_dict[layer_id].keys():
+                    fold_dict[layer_id][roi_name] = []
+                    corr_dict[layer_id][roi_name] = []
+                fmri_data = np.load(os.path.join(roi_file))
+                fmri_trn = fmri_data
+                r_lst = train_regression_per_ROI(pca_trn,pca_tst,fmri_trn,fmri_tst=[])                
+                corr_dict[layer_id][roi_name].append(r_lst)
+                corr_dict[layer_id][roi_name] = np.mean(np.array(corr_dict[layer_id][roi_name], dtype=np.float16),axis=0)
+        return corr_dict
